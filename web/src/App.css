@@ -55,6 +55,20 @@
   padding: 5px;
   width: 25%;
   border: 1px solid black;
+  display: flex;
+}
+
+.languageButton {
+  padding: 2px 5px;
+  font-size: 80%;
+  font-weight: normal;
+  border: 1px solid black;
+  margin: 0px 5px 0px 5px;
+  cursor: pointer;
+}
+
+.selected {
+  background-color: white;
 }
 
 .Odd {
