@@ -36,3 +36,37 @@
     transform: rotate(360deg);
   }
 }
+
+/* CSS declarations */
+.Repos-table {
+  padding: 10px;
+
+}
+
+.Repos-table-header {
+  display: flex;
+}
+
+.Repos-table-row {
+  display: flex;
+}
+
+.cell {
+  padding: 5px;
+  width: 25%;
+  border: 1px solid black;
+}
+
+.Odd {
+  background-color: #EEEEEE;
+}
+
+.Even {
+  background-color: #D0D0D0;
+}
+
+.header{
+    background-color: #BBBBBB;
+    font-size: 120%;
+    font-weight: bold;
+}
