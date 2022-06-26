@@ -58,12 +58,18 @@
   display: flex;
 }
 
+.repoCell {
+  padding: 5px;
+  border: 1px solid black;
+}
+
 .languageButton {
   padding: 2px 5px;
   font-size: 80%;
   font-weight: normal;
   border: 1px solid black;
   margin: 0px 5px 0px 5px;
+  background-color: #AAAAAA;
   cursor: pointer;
 }
 
@@ -83,4 +89,18 @@
     background-color: #BBBBBB;
     font-size: 120%;
     font-weight: bold;
+}
+
+.Repo-display {
+  padding: 10px;
+}
+
+.back-button {
+  padding: 2px 5px;
+  margin: 10px;
+  border: 1px solid black;
+  cursor: pointer;
+  background-color: #AAAAAA;
+  width: 100px;
+  text-align: center;
 }
