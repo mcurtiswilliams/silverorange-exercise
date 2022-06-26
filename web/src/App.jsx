@@ -17,6 +17,14 @@ class App extends React.Component { // Create App class
     fetch ('http://localhost:4000/repos')
       .then((res) => res.json())
       .then((json) => {
+        json.sort(function (a, b) { // Sort json by reverse chronological order
+          if (a.created_at < b.created_at) {
+            return 1;
+          }
+          else {
+            return -1;
+          }
+        });
         this.setState({ // Update the state to reflect that the data has been loaded
           repos: json,
           dataIsLoaded: true
