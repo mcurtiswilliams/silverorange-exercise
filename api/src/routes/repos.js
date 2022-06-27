@@ -13,14 +13,14 @@ const httpsOptions = { // Options for https call to get repos from github
   headers: {'User-Agent': 'mcurtiswilliams'},
 };
 
-function httpsrequest() { // Function to return repos from api.github.com
+function httpsrequest(path) { // Function to return repos from api.github.com
      return new Promise((resolve, reject) => { // Create the promise to wrap the https request
         const httpsOptions = { // Specify options for the https call
             host: 'api.github.com',
-            path: '/users/silverorange/repos',
+            path: path,
             port: 443,
             method: 'GET',
-            headers: {'User-Agent': 'mcurtiswilliams'},
+            headers: {'User-Agent': 'mcurtiswilliams', 'Authorization': "token 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"},
         };
         const req = https.request(httpsOptions, (res) => { // Make the request
             var body = '';
@@ -50,21 +50,33 @@ repos.get('/', async (_, res) => {
   res.status(200);
 
   // TODO: See README.md Task (A). Return repo data here. You’ve got this!
-  httpsrequest().then((data) => { // Run the https request
-    let aggData = [];
-    let parsedHttpsData = data; // Parse the https data into JSON format
-    let rawFileData = fs.readFileSync('../api/data/repos.json', (err, data) => { // Read data from local file
-      return data;
-    });
-    let parsedFileData = JSON.parse(rawFileData); // Parse the data from readFileSync
-    parsedFileData.forEach(element => { // Add elements from parsed file data to the https data
-      parsedHttpsData.push (element);
-    });
-    parsedHttpsData.forEach (element => { // Include only repos where fork is false
-      if (!element.fork) {
-        aggData.push (element);
-      }
-    });
-    return res.json(aggData); // Return aggregated repos data
+  let aggData = [];
+  let parsedHttpsData = []; // Variable to store parsed and modified repos
+  await httpsrequest('/users/silverorange/repos').then((data) => { // Run the https request
+    parsedHttpsData = data;
+  });
+  let rawFileData = fs.readFileSync('../api/data/repos.json', (err, data) => { // Read data from local file
+    return data;
+  });
+  let parsedFileData = JSON.parse(rawFileData); // Parse the data from readFileSync
+  parsedFileData.map((repo) => { // Add elements from parsed file data to the https data
+    parsedHttpsData.push (repo);
+  });
+  parsedHttpsData.map ((repo) => { // Include only repos where fork is false
+    if (!repo.fork) {
+      aggData.push (repo);
+    }
+  });
+  return res.json(aggData); // Return aggregated repos data
+});
+
+repos.get('/repo/:name', async (req, res) => { // API get requesting commit information for specific repository
+  res.header('Cache-Control', 'no-store');
+
+  res.status(200);
+
+  let requestURL = '/repos/silverorange/' + req.params.name + '/commits/master';
+  httpsrequest(requestURL).then((data) => {
+    return res.json(data);
   });
 });

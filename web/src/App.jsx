@@ -1,7 +1,6 @@
 import React from 'react';
 const fetch = require('node-fetch');
 
-
 import './App.css';
 
 class App extends React.Component { // Create App class
@@ -15,7 +14,8 @@ class App extends React.Component { // Create App class
       languageFilter: null, // Filter the repos by the selected language (default: null)
       displayRepo: false, // Boolean to determine whether a repo has been clicked and should be displayed
       displayedRepo: {}, // The repo to be displayed
-      displayedREADME: null // The README.md file from the selected repo
+      displayedREADME: null, // The README.md file from the displayed repo
+      displayedCommit: null // The commit information for the displayed repo
     }
   }
 
@@ -52,23 +52,29 @@ class App extends React.Component { // Create App class
       });
   }
 
-  displayRepo (repo) {
+  displayRepo (repo) { // Set the state with the data related to the selected repository
     this.setState ({
       displayRepo: true,
       displayedRepo: repo
     });
-    fetch ('https://raw.githubusercontent.com/'+repo.full_name+'/master/README.md')
+    fetch ('https://raw.githubusercontent.com/'+repo.full_name+'/master/README.md') // Fetch the README.md file
       .then((response) => {
         if (response.ok) { return response.text();}
       })
       .then((result) => this.setState({ displayedREADME: result}));
+    fetch ('http://localhost:4000/repos/repo/' + repo.name) // Fetch the commit information
+      .then ((response) => {
+        if (response.ok) { return response.json();}
+      })
+      .then((result) => this.setState({ displayedCommit: result }));
   }
 
   hideRepo () {
-    this.setState ({
+    this.setState ({ // Reset state related to the displayed repo when toggled
       displayRepo: false,
       displayedRepo: null,
-      displayedREADME: null
+      displayedREADME: null,
+      displayedCommit: null
     });
   }
 
@@ -86,15 +92,21 @@ class App extends React.Component { // Create App class
   }
   render() {
     if (this.state.dataIsLoaded) { // If the data has been loaded, display the data
-      if (this.state.displayRepo && this.state.displayedRepo) { // Display the repo data if one has been clicked (B. 5 - 8)
+      if (this.state.displayRepo && !!this.state.displayedRepo && !!this.state.displayedCommit) { // Display the repo data if one has been clicked (B. 5 - 8)
         return (
           <div className="Repo-display">
             <div className="back-button" onClick={this.hideRepo.bind(this)}>Go back</div>
             <div className="header repoCell">Name of repository:</div>
             <div className="repoCell">{this.state.displayedRepo.name}</div>
+            <div className="header repoCell">Date of most recent commit:</div>
+            <div className="repoCell">{(!!this.state.displayedCommit.commit) ? this.state.displayedCommit.commit.author.date : ""}</div>
+            <div className="header repoCell">Author of most recent commit:</div>
+            <div className="repoCell">{(!!this.state.displayedCommit.commit) ? this.state.displayedCommit.commit.author.name : ""}</div>
+            <div className="header repoCell">Message from most recent commit:</div>
+            <div className="repoCell">{(!!this.state.displayedCommit.commit) ? this.state.displayedCommit.commit.message : ""}</div>
             <div className="header repoCell">Contents of README.md</div>
             <div className="readme repoCell">
-              {(!!this.state.displayedREADME) ? this.state.displayedREADME : ""}
+              {(!!this.state.displayedREADME) ? this.state.displayedREADME : "No README.md found"}
             </div>
           </div>
         )
@@ -121,7 +133,7 @@ class App extends React.Component { // Create App class
             {
               this.state.repos.map((repo, i) => { // Display each repo in a row (B. 2.)
                 if (!(this.state.languageFilter) || (repo.language == this.state.languageFilter)) { // Filter by language if languageFilter is present
-                  let rowColor = '';
+                  let rowColor = ''; // Create alternating colours for the rows
                   if ((i % 2) == 1) {
                     rowColor = "cell Odd";
                   }
@@ -129,7 +141,7 @@ class App extends React.Component { // Create App class
                     rowColor = "cell Even";
                   }
                   return (
-                    <div className="Repos-table-row" key={repo.id} onClick={this.displayRepo.bind(this, repo)}>
+                    <div className="Repos-table-row click" key={repo.id} onClick={this.displayRepo.bind(this, repo)}>
                       <div className={rowColor}>{repo.name}</div>
                       <div className={rowColor}>{repo.description}</div>
                       <div className={rowColor}>{repo.language}</div>
